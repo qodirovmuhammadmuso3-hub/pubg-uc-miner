@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>PUBG UC Earn</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/style.css">
+</head>
+</head>
+<body>
+
+<div class="corner-mark tl"></div>
+<div class="corner-mark tr"></div>
+<div class="corner-mark bl"></div>
+<div class="corner-mark br"></div>
+
+<div class="toast" id="toast"></div>
+
+<!-- PAGE: HOME -->
+<div class="page active" id="page-home">
+  <div class="header">
+    <div class="logo">UC<span>//</span>EARN</div>
+    <div class="user-tag" id="user-tag">PLAYER_001</div>
+  </div>
+
+  <div class="balance-card">
+    <div class="balance-label">// Joriy balans</div>
+    <div class="balance-amount" id="balance-display">0 <span>COIN</span></div>
+    <div class="balance-sub">
+      <div class="balance-stat">
+        <div class="balance-stat-label">Bugun</div>
+        <div class="balance-stat-val green" id="today-earned">+0</div>
+      </div>
+      <div class="balance-stat">
+        <div class="balance-stat-label">Jami chiqarilgan</div>
+        <div class="balance-stat-val" id="total-withdrawn">0 UC</div>
+      </div>
+      <div class="balance-stat">
+        <div class="balance-stat-label">Referal</div>
+        <div class="balance-stat-val" id="ref-count-header">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">// Kunlik vazifalar</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="task-list" id="task-list">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+<!-- PAGE: UC EXCHANGE -->
+<div class="page" id="page-exchange">
+  <div class="header">
+    <div class="logo">UC<span>//</span>TOPUP</div>
+    <div class="user-tag">EXCHANGE</div>
+  </div>
+
+  <div class="balance-card" style="margin-top:20px;">
+    <div class="balance-label">// Mavjud balans</div>
+    <div class="balance-amount" id="exc-balance">0 <span>COIN</span></div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">// UC tanlang</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="exchange-box">
+    <div class="exchange-rates" id="rate-cards">
+      <!-- rendered by JS -->
+    </div>
+
+    <div style="margin-bottom:10px;">
+      <div class="balance-label" style="margin-bottom:6px;">// PUBG Player ID</div>
+      <div class="player-input-wrap">
+        <input class="player-input" id="player-id" placeholder="5123456789 (Miras ID)" type="number" inputmode="numeric"/>
+      </div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted);">
+        PUBG Mobile → Profil → nusxalash belgisi ostidagi ID
+      </div>
+    </div>
+
+    <button class="btn-exchange" id="btn-exchange" disabled onclick="doExchange()">
+      EXCHANGE
+    </button>
+    <div id="exc-status" style="font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;margin-top:8px;min-height:16px;"></div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">// Kurs jadvali</div>
+    <div class="section-line"></div>
+  </div>
+  <div class="exchange-box">
+    <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;">
+      <tr style="color:var(--muted);">
+        <td style="padding:4px 0">COIN</td>
+        <td style="padding:4px 0;text-align:center">=</td>
+        <td style="padding:4px 0;text-align:right;color:var(--gold)">UC</td>
+      </tr>
+      <tr><td style="padding:4px 0">500</td><td style="padding:4px 0;text-align:center;color:var(--muted)">=</td><td style="padding:4px 0;text-align:right;color:var(--gold)">30 UC</td></tr>
+      <tr><td style="padding:4px 0">1 000</td><td style="padding:4px 0;text-align:center;color:var(--muted)">=</td><td style="padding:4px 0;text-align:right;color:var(--gold)">60 UC</td></tr>
+      <tr><td style="padding:4px 0">2 500</td><td style="padding:4px 0;text-align:center;color:var(--muted)">=</td><td style="padding:4px 0;text-align:right;color:var(--gold)">180 UC</td></tr>
+      <tr><td style="padding:4px 0">5 000</td><td style="padding:4px 0;text-align:center;color:var(--muted)">=</td><td style="padding:4px 0;text-align:right;color:var(--gold)">400 UC</td></tr>
+      <tr><td style="padding:4px 0">10 000</td><td style="padding:4px 0;text-align:center;color:var(--muted)">=</td><td style="padding:4px 0;text-align:right;color:var(--gold)">900 UC</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- PAGE: REFERRAL -->
+<div class="page" id="page-ref">
+  <div class="header">
+    <div class="logo">UC<span>//</span>REF</div>
+    <div class="user-tag">REFERRAL</div>
+  </div>
+
+  <div class="balance-card" style="margin-top:20px;">
+    <div class="balance-label">// Har bir do'st = +100 COIN</div>
+    <div class="balance-amount" id="ref-earn-display">0 <span>COIN</span></div>
+    <div class="balance-sub">
+      <div class="balance-stat">
+        <div class="balance-stat-label">Do'stlar</div>
+        <div class="balance-stat-val" id="ref-friends">0</div>
+      </div>
+      <div class="balance-stat">
+        <div class="balance-stat-label">2-darajali</div>
+        <div class="balance-stat-val" id="ref-level2">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">// Havolangiz</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="referral-box">
+    <div class="ref-link-row">
+      <div class="ref-link-box" id="ref-link-display">t.me/your_bot?start=...</div>
+      <button class="btn-copy" onclick="copyRef()">COPY</button>
+    </div>
+    <div style="margin-top:10px;">
+      <button class="btn-exchange" onclick="shareRef()" style="font-size:13px;">
+        TELEGRAM DO'STLARGA ULASHISH
+      </button>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">// Referal shartlari</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="exchange-box" style="display:flex;flex-direction:column;gap:10px;">
+    <div style="display:flex;align-items:flex-start;gap:12px;">
+      <div style="width:24px;height:24px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--gold);flex-shrink:0;">01</div>
+      <div style="font-size:14px;color:var(--text);">Havolangizni do'stingizga yuboring</div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:12px;">
+      <div style="width:24px;height:24px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--gold);flex-shrink:0;">02</div>
+      <div style="font-size:14px;color:var(--text);">Do'st botni ochadi — sizga <span style="color:var(--gold);font-weight:700;">+100 COIN</span></div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:12px;">
+      <div style="width:24px;height:24px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--gold);flex-shrink:0;">03</div>
+      <div style="font-size:14px;color:var(--text);">Do'stingiz referal jalb qilsa — sizga ham <span style="color:var(--gold);font-weight:700;">+25 COIN</span> (2-daraja)</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: PROFILE -->
+<div class="page" id="page-profile">
+  <div class="header">
+    <div class="logo">UC<span>//</span>PROFIL</div>
+    <div class="user-tag" id="profile-tag">PLAYER</div>
+  </div>
+
+  <div class="balance-card" style="margin-top:20px;">
+    <div class="balance-label">// Foydalanuvchi</div>
+    <div style="font-size:22px;font-weight:700;color:var(--text);letter-spacing:1px;" id="profile-name">—</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:4px;" id="profile-id">ID: —</div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">// Statistika</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-block">
+      <div class="stat-block-label">Jami coin</div>
+      <div class="stat-block-val gold" id="stat-total">0</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-block-label">Chiqarilgan UC</div>
+      <div class="stat-block-val green" id="stat-uc">0</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-block-label">Vazifalar</div>
+      <div class="stat-block-val" id="stat-tasks">0</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-block-label">Do'stlar</div>
+      <div class="stat-block-val" id="stat-refs">0</div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">// Keyingi UC gacha</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-label">
+      <span>60 UC (1,000 COIN)</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:8px;" id="progress-need">
+      1,000 coin kerak
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" id="nav-home" onclick="switchPage('home')">
+    <div class="nav-icon">⚡</div>
+    <div>VAZIFALAR</div>
+  </div>
+  <div class="nav-item" id="nav-exchange" onclick="switchPage('exchange')">
+    <div class="nav-icon">💎</div>
+    <div>UC OLISH</div>
+  </div>
+  <div class="nav-item" id="nav-ref" onclick="switchPage('ref')">
+    <div class="nav-icon">👥</div>
+    <div>REFERAL</div>
+  </div>
+  <div class="nav-item" id="nav-profile" onclick="switchPage('profile')">
+    <div class="nav-icon">🎖</div>
+    <div>PROFIL</div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
