@@ -7,17 +7,24 @@ from aiogram.types import (
     InlineKeyboardMarkup, 
     InlineKeyboardButton, 
     WebAppInfo, 
-    MenuButtonWebApp,
-    ReplyKeyboardMarkup,
-    KeyboardButton
+    MenuButtonWebApp
 )
 from dotenv import load_dotenv
+
+# Backend modullarini import qilish (Statistika uchun)
+try:
+    from backend.database import SessionLocal
+    from backend import models
+    DB_AVAILABLE = True
+except ImportError:
+    DB_AVAILABLE = False
 
 # Sozlamalarni yuklash
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
 WEBAPP_URL = os.getenv("WEBAPP_URL", "http://localhost:8000")
+ADMIN_IDS = [int(id.strip()) for id in os.getenv("ADMIN_IDS", "").split(",") if id.strip()]
 
 # Logging
 logging.basicConfig(level=logging.INFO)
@@ -30,7 +37,7 @@ async def check_subscription(user_id: int):
         member = await bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
         return member.status in ["member", "administrator", "creator"]
     except Exception as e:
-        print(f"Subscription check error: {e}")
+        logging.error(f"Subscription check error: {e}")
         return False
 
 async def get_main_keyboard(user_id: int):
@@ -60,6 +67,36 @@ async def cmd_start(message: types.Message):
         
     await message.answer(welcome_text, reply_markup=await get_main_keyboard(user_id))
 
+@dp.message(Command("admin"))
+async def cmd_admin(message: types.Message):
+    """Admin paneli (Faqat adminlar uchun)"""
+    if message.from_user.id not in ADMIN_IDS:
+        return # Oddiy foydalanuvchilar uchun javob bermaymiz
+
+    if not DB_AVAILABLE:
+        await message.answer("❌ Ma'lumotlar bazasiga ulanib bo'lmadi.")
+        return
+
+    db = SessionLocal()
+    try:
+        user_count = db.query(models.User).count()
+        task_count = db.query(models.TaskComplete).count()
+        withdrawal_count = db.query(models.Withdrawal).filter(models.Withdrawal.status == "pending").count()
+        total_uc = db.query(models.Withdrawal).filter(models.Withdrawal.status == "completed").all()
+        total_uc_amount = sum(w.uc_amount for w in total_uc)
+
+        stats_text = (
+            "📊 **Bot Statistikasi (Admin)**\n\n"
+            f"👤 Jami foydalanuvchilar: {user_count}\n"
+            f"✅ Bajarilgan vazifalar: {task_count}\n"
+            f"⏳ Kutayotgan so'rovlar (UC): {withdrawal_count}\n"
+            f"💎 Jami tarqatilgan UC: {total_uc_amount}\n"
+        )
+        
+        await message.answer(stats_text, parse_mode="Markdown")
+    finally:
+        db.close()
+
 @dp.callback_query(F.data == "check_sub")
 async def process_check_sub(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
@@ -73,7 +110,6 @@ async def process_check_sub(callback_query: types.CallbackQuery):
 
 # Menu Buttonni sozlash (Bot ishga tushganda)
 async def on_startup(bot: Bot):
-    # Bu yerda 'Open' (yoki 'O'yin') tugmasini chap burchakka o'rnatamiz
     await bot.set_chat_menu_button(
         menu_button=MenuButtonWebApp(
             text="Open", 
@@ -84,7 +120,6 @@ async def on_startup(bot: Bot):
 
 async def main():
     print("Bot ishga tushdi...")
-    # Startup funksiyasini chaqirish
     await on_startup(bot)
     await dp.start_polling(bot)
 
